@@ -1,0 +1,12 @@
+chunking:
+  max_tokens: 600
+  overlap_tokens: 90
+retrieval:
+  top_k_dense: 20
+  top_k_bm25: 20
+  rrf_k: 60
+  top_k_rerank: 6
+agents:
+  max_retries: 2
+  max_parallel: 3
+  temperature: 0

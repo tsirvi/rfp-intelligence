@@ -1,0 +1,25 @@
+# Ingestion
+pymupdf
+pdfplumber
+beautifulsoup4
+lxml
+pytesseract
+# Search
+sentence-transformers
+chromadb
+rank-bm25
+# Agents
+langgraph
+langchain-ollama
+pydantic>=2
+# API / UI
+fastapi
+uvicorn
+streamlit
+# Utilities
+python-dotenv
+pyyaml
+python-dateutil
+# Dev
+pytest
+ruff
