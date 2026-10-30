@@ -1,0 +1,280 @@
+{
+  "bid_id": "Bid2",
+  "generated_at": "2026-10-30T09:14:18+00:00",
+  "model": "qwen3:4b",
+  "fields": {
+    "Bid Number": {
+      "value": "#E20P4600040",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "From PORFP Number in Section 1",
+      "status": "passed"
+    },
+    "Title": {
+      "value": "Dell Laptops w/Extended Warranty",
+      "sources": [
+        {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "From Source ID: SCRIBE",
+      "status": "passed"
+    },
+    "company_name": {
+      "value": "State of Maryland Treasurer's Office",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1
+        },
+        {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "Consistent across RFP and bid pages",
+      "status": "passed"
+    },
+    "contact_info": {
+      "value": "Tamaira Hawkins | 410-260-7533 | thawkins@treasurer.state.md.us",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 2,
+          "page_end": 3
+        },
+        {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "Agency POC from RFP and bid page",
+      "status": "passed"
+    },
+    "Due Date": {
+      "value": "2024-06-10 14:00 EDT",
+      "sources": [
+        {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "E1: 90-day validity; E3: Closing Date. Confirmed by E5: Proposal Due 06/10/2024",
+      "status": "passed"
+    },
+    "Pre Bid Meeting": {
+      "value": null,
+      "sources": [],
+      "confidence": 0.5,
+      "notes": "Not found in documents",
+      "status": "not_found"
+    },
+    "Delivery Date": {
+      "value": "06/10/2024",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3
+        },
+        {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1
+        },
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1
+        }
+      ],
+      "confidence": 0.3,
+      "notes": "Delivery date from E1: 06/10/2024; E4 states 'Delivery within 45 days of Award' but does not specify a date; validation failed: delivery date equals the proposal due date; that is a submission date, not a delivery requirement (look for a delivery window such as 'within N days of award')",
+      "status": "failed"
+    },
+    "Bid Submission Type": {
+      "value": "eMaryland Marketplace Advantage (eMMA) e-Procurement system",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "Only accepted via eMMA; not email, fax, mail, or hand delivery",
+      "status": "passed"
+    },
+    "Term of Bid": {
+      "value": null,
+      "sources": [],
+      "confidence": 0.5,
+      "notes": "Not found in documents",
+      "status": "not_found"
+    },
+    "Payment Terms": {
+      "value": "Email invoices to: STOaccountspayable@treasurer.state.md.us; Total Minimum Payment Due is the greater of $20 or 3% of the New Balance rounded up to the next dollar, plus all past due amounts",
+      "sources": [
+        {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 3
+        }
+      ],
+      "confidence": 0.85,
+      "notes": "Invoicing instructions from E4; payment terms from E3",
+      "status": "passed"
+    },
+    "Bid Bond Requirement": {
+      "value": null,
+      "sources": [],
+      "confidence": 0.95,
+      "notes": "Not found in documents",
+      "status": "not_found"
+    },
+    "Any Additional Documentation Required": {
+      "value": "Mercury Affidavit (https://doit.maryland.gov/contracts/Documents/hardware_contract/hwmercury_affidavit.pdf); W-9; Social Security Number or Federal Tax ID number",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 2
+        }
+      ],
+      "confidence": 0.85,
+      "notes": "E5 lists Mercury Affidavit and requires SSN/Federal Tax ID; E2 is affidavit template but not specific to this bid.",
+      "status": "passed"
+    },
+    "Contract or Cooperative to use": {
+      "value": "Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "E4 specifies Master Contract 060B5400007 for eligibility.",
+      "status": "passed"
+    },
+    "MFG for Registration": {
+      "value": "Dell",
+      "sources": [
+        {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 3
+        },
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "E4 lists Manufacturer Name as Dell; E3 mentions Dell as supplier.",
+      "status": "passed"
+    },
+    "Product": {
+      "value": "SI# CC7802 Dell Latitude 5550; Dell Thunderbolt 4 Dock – WD22TB4",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "From RFP page 3: 2 products listed with quantities",
+      "status": "passed"
+    },
+    "Model_no": {
+      "value": "Latitude 5550; WD22TB4",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "From RFP page 3: model numbers specified for both products",
+      "status": "passed"
+    },
+    "Part_no": {
+      "value": "SI# CC7802; 30",
+      "sources": [
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "From RFP page 3: product descriptions and quantities",
+      "status": "passed"
+    },
+    "Product Specification": {
+      "value": "Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 threads, up to 4.3 GHz Turbo); Windows 11 Pro, English, Brazilian Portuguese PT-BR, French, Spanish; No Microsoft Office License Included - 30 day Trial Offer Only; 16 GB: 2 x 8 GB, DDR5, 5600 MT/s (5200 MT/s with 13th Gen Intel Core processors); 256 GB, M.2 2230, TLC, Gen 4 PCIe NVMe, SSD; 15.6\", FHD 1920x1080, 60Hz, IPS, Non-Touch, AG, 250 nit, 45%; SI# CC7802 Dell Latitude 5550",
+      "sources": [
+        {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 1
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "Exact specs from E4; no conflicts",
+      "status": "passed"
+    },
+    "Installation": {
+      "value": null,
+      "sources": [],
+      "confidence": 0.5,
+      "notes": "Not found in documents",
+      "status": "not_found"
+    },
+    "Bid Summary": {
+      "value": "The State of Maryland Treasurer's Office is seeking bids for Dell Latitude 5550 laptops with extended warranty and Dell Thunderbolt 4 Dock (WD22TB4) under bid #E20P4600040. Bids must be submitted via the eMaryland Marketplace Advantage e-Procurement system by June 10, 2024, at 2:00 PM EDT. The bid must comply with the Desktop, Laptop and Tablet 2015 Master Contract (060B5400007) and include all required documentation as specified in the addendum.",
+      "sources": [
+        {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1
+        },
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1
+        },
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3
+        }
+      ],
+      "confidence": 0.95,
+      "notes": "Generated from the extracted fields above",
+      "status": "passed"
+    }
+  },
+  "addendum_changes": [],
+  "validation": {
+    "passed": 14,
+    "failed": 1,
+    "not_found": 4,
+    "issues": [
+      {
+        "field": "Delivery Date",
+        "check": "consistency",
+        "message": "delivery date equals the proposal due date; that is a submission date, not a delivery requirement (look for a delivery window such as 'within N days of award')"
+      }
+    ]
+  },
+  "run": {
+    "run_id": "20261030T085726-4afd3a",
+    "steps": 32,
+    "llm_calls": 11,
+    "prompt_tokens": 22912,
+    "output_tokens": 2391,
+    "errors": [],
+    "validation_rounds": 3,
+    "seconds": 1011.1,
+    "trace": "outputs/traces/20261030T085726-4afd3a.jsonl"
+  }
+}

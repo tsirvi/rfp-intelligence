@@ -1,0 +1,11 @@
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["data", "outputs", "index"]
+
+[tool.ruff.lint]
+# BLE001: broad excepts are deliberate at file/page boundaries, so one bad input never stops a bid.
+ignore = ["BLE001"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

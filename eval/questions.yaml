@@ -1,0 +1,172 @@
+# Retrieval evaluation set: question -> passages that answer it.
+#
+# A retrieved chunk is relevant to a passage when its file name contains `file` and its text contains
+# `contains` (case, whitespace and " | " column separators ignored). Matching on text rather than chunk
+# ids keeps the set valid when chunking changes. Recall@k = share of a question's passages found in the
+# top k; MRR uses the rank of the first relevant chunk.
+#
+# Questions are phrased the way a bid analyst would ask, often with different words from the document
+# ("deadline" vs "Solicitation Due"), so the set tests more than keyword overlap.
+
+- id: q01
+  bid: Bid1
+  question: What is the final submission deadline for proposals?
+  relevant:
+    - {file: Addendum 2, contains: "The new due date for this RFP will be July 9, 2024"}
+    - {file: BidNet, contains: "Closing Date: 07/09/2024"}
+
+- id: q02
+  bid: Bid1
+  question: What was the original solicitation due date before any addendum?
+  relevant:
+    - {file: FINAL, contains: "Solicitation Due 27-JUN-2024 14:00:00"}
+
+- id: q03
+  bid: Bid1
+  question: Is there a pre-bid conference, and when and how is it held?
+  relevant:
+    - {file: FINAL, contains: "A pre-proposal meeting will be held at 2:00 PM CST via TEAMS"}
+    - {file: BidNet, contains: "Event Type: Prebid Conference"}
+
+- id: q04
+  bid: Bid1
+  question: Who is the buyer for this solicitation and what is their email address?
+  relevant:
+    - {file: FINAL, contains: "Buyer ALZATE, JASMINE"}
+
+- id: q05
+  bid: Bid1
+  question: How long is the contract and what renewal options are there?
+  relevant:
+    - {file: FINAL, contains: "three (3) year agreement with two (2) successive one (1) year extensions"}
+    - {file: FINAL, contains: "Initial Term: 3"}
+
+- id: q06
+  bid: Bid1
+  question: What warranty period is required for student Chromebooks?
+  relevant:
+    - {file: Addendum 1, contains: "one-year warranty for student Chromebooks"}
+
+- id: q07
+  bid: Bid1
+  question: What are the minimum memory and storage requirements for the Tier 2 staff laptop?
+  relevant:
+    - {file: FINAL, contains: "Tier 2 Staff Laptop Minimum Requirements"}
+
+- id: q08
+  bid: Bid1
+  question: How should vendors submit their responses?
+  relevant:
+    - {file: FINAL, contains: "Dallas ISD prefers responses to be submitted online via our electronic system"}
+
+- id: q09
+  bid: Bid1
+  question: By when must vendor questions be submitted?
+  relevant:
+    - {file: BidNet, contains: "Questions Due By: 06/11/2024"}
+
+- id: q10
+  bid: Bid1
+  question: Are insurance or bonds required from the vendor?
+  relevant:
+    - {file: FINAL, contains: "Insurance and/or bond requirements are enumerated elsewhere"}
+    - {file: FINAL, contains: "must comply with any insurance, bid bond, or liability requirements"}
+
+- id: q11
+  bid: Bid1
+  question: What is the target quantity of Tier 1 small student Chromebooks?
+  relevant:
+    - {file: FINAL, contains: "15.01 Tier 1 Small 50,000"}
+
+- id: q12
+  bid: Bid1
+  question: Does the vendor need a local warehouse in the Dallas area?
+  relevant:
+    - {file: Addendum 1, contains: "No, a local location is not required"}
+
+- id: q13
+  bid: Bid1
+  question: How will proposals be evaluated and scored?
+  relevant:
+    - {file: FINAL, contains: "Each Offer will be analyzed and evaluated by a panel"}
+
+- id: q14
+  bid: Bid1
+  question: How many points are given for M/WBE subcontractor references?
+  relevant:
+    - {file: FINAL, contains: "submitted a list of two (2) M/WBE subcontractor references"}
+
+- id: q15
+  bid: Bid1
+  question: Does Form 1295 have to be submitted with the proposal or after award?
+  relevant:
+    - {file: Addendum 1, contains: "does Form 1295 have to be submitted"}
+
+- id: q16
+  bid: Bid2
+  question: When are proposals due for the Dell laptop solicitation?
+  relevant:
+    - {file: PORFP, contains: "PROPOSAL DUE 06/10/2024"}
+    - {file: BidNet, contains: "Closing Date: 06/10/2024 02:00 PM EDT"}
+
+- id: q17
+  bid: Bid2
+  question: What is the deadline for submitting questions?
+  relevant:
+    - {file: PORFP, contains: "06/01/2024 at 2:00 PM EDT"}
+
+- id: q18
+  bid: Bid2
+  question: How many Latitude 5550 laptops are being purchased?
+  relevant:
+    - {file: PORFP, contains: "SI# CC7802 30 06/10/2024"}
+    - {file: BidNet, contains: "SI# CC7802 30 06/10/2024"}
+
+- id: q19
+  bid: Bid2
+  question: How soon after award must the equipment be delivered?
+  relevant:
+    - {file: PORFP, contains: "Delivery within 45 days of Award"}
+
+- id: q20
+  bid: Bid2
+  question: What extended warranty coverage is required on the laptops?
+  relevant:
+    - {file: PORFP, contains: "Dell Limited Hardware Warranty"}
+
+- id: q21
+  bid: Bid2
+  question: Who is the agency point of contact and how can they be reached?
+  relevant:
+    - {file: PORFP, contains: "Agency POC Name: Tamaira Hawkins"}
+    - {file: BidNet, contains: "Contact Information: Tamaira Hawkins"}
+
+- id: q22
+  bid: Bid2
+  question: What is the part number of the 65W USB-C power adapter?
+  relevant:
+    - {file: Specs, contains: "65W AC adapter, USB Type-C, EcoDesign 492-BDMN"}
+
+- id: q23
+  bid: Bid2
+  question: Is the award restricted to certified small businesses?
+  relevant:
+    - {file: PORFP, contains: "This is a Small Business Reserve Procurement"}
+
+- id: q24
+  bid: Bid2
+  question: Can bids be sent by email or must they go through an online portal?
+  relevant:
+    - {file: PORFP, contains: "Bids will not be accepted by email, fax, U.S. Mail, or hand delivery"}
+
+- id: q25
+  bid: Bid2
+  question: What does the vendor have to affirm about mercury in the products?
+  relevant:
+    - {file: Mercury_Affidavit, contains: "MERCURY AFFIDAVIT"}
+
+- id: q26
+  bid: Bid2
+  question: How long must quotes remain valid after the due date?
+  relevant:
+    - {file: PORFP, contains: "valid for at least 90 days after the set due date"}

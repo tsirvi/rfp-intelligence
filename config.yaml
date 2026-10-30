@@ -1,12 +1,30 @@
 chunking:
-  max_tokens: 600
-  overlap_tokens: 90
+  max_tokens: 350          # bge-base truncates at 512 tokens; the estimate errs low, so leave headroom
+  overlap_tokens: 50       # trailing paragraphs repeated in the next chunk (never across sections)
+  min_tokens: 80           # a new section only starts a new chunk once the current one has this much
 retrieval:
   top_k_dense: 20
   top_k_bm25: 20
   rrf_k: 60
-  top_k_rerank: 6
+  top_k_rerank: 6          # results returned
+  rerank: false            # cross-encoder reranking; small gain, ~seconds per query on CPU (eval/results.md)
+  rerank_candidates: 15
+  expand: true
 agents:
-  max_retries: 2
-  max_parallel: 3
+  max_retries: 2           # re-extractions per field after the validator rejects it
+  max_parallel: 3          # field groups extracted at the same time
   temperature: 0
+  num_ctx: 8192            # LLM context window (prompts are ~2.5k tokens)
+  llm_timeout_s: 600       # per LLM call; CPU inference of a 2.5k-token prompt takes 1-5 minutes
+  keep_alive: 30m          # how long Ollama keeps the model (and its prompt cache) loaded after a call
+qa:
+  answer_budget_s: 90      # Ask: past this, show the most relevant cited passages instead of waiting for the LLM
+  passage_tokens: 600      # retrieved text in the Ask prompt (split across bids); smaller is faster on CPU
+ingestion:
+  ocr_enabled: true
+  ocr_min_chars: 50        # pages with less extractable text are OCR'd
+  ocr_dpi: 200
+  column_gap_pt: 18        # horizontal gap that marks a new column (" | ")
+  header_footer_min_ratio: 0.5  # line must repeat on this share of pages to be stripped
+api:
+  index_on_startup: true   # index every folder under DATA_DIR (default ./data) when the API starts

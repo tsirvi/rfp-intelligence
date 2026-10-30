@@ -5,3 +5,9 @@ __pycache__/
 index/
 .pytest_cache/
 .DS_Store
+.ruff_cache/
+
+# BidNet pages saved from a logged-in browser session contain account and session details
+data/**/*.html
+# Per-run agent traces (one reviewed example is kept in docs/example_trace.jsonl)
+outputs/traces/
