@@ -1,0 +1,11 @@
+# GPU override: give Ollama the server's NVIDIA GPUs (needs the NVIDIA Container Toolkit on the host).
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]

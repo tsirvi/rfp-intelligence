@@ -17,9 +17,15 @@ agents:
   num_ctx: 8192            # LLM context window (prompts are ~2.5k tokens)
   llm_timeout_s: 600       # per LLM call; CPU inference of a 2.5k-token prompt takes 1-5 minutes
   keep_alive: 30m          # how long Ollama keeps the model (and its prompt cache) loaded after a call
+  max_output_tokens: 1500  # cap on any single LLM reply (a looping small model would otherwise run for minutes)
 qa:
   answer_budget_s: 90      # Ask: past this, show the most relevant cited passages instead of waiting for the LLM
   passage_tokens: 600      # retrieved text in the Ask prompt (split across bids); smaller is faster on CPU
+  cache_similarity: 0.94   # semantic cache: reuse an answer for a question this similar (cosine) with the same numbers
+costs:                     # per 1,000 tokens, to estimate what a run would cost on a hosted model
+  prompt_per_1k: 0.0       # the local Ollama model is free to call; fill in a provider's prices to compare
+  output_per_1k: 0.0
+  currency: USD
 ingestion:
   ocr_enabled: true
   ocr_min_chars: 50        # pages with less extractable text are OCR'd
@@ -28,3 +34,4 @@ ingestion:
   header_footer_min_ratio: 0.5  # line must repeat on this share of pages to be stripped
 api:
   index_on_startup: true   # index every folder under DATA_DIR (default ./data) when the API starts
+  index_roots: [data, samples]   # POST /index only accepts folders inside these (relative to the project)

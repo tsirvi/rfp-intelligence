@@ -22,9 +22,12 @@ from typing import Annotated, Any, TypedDict
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send
 
+from agents import comparison_agent, go_no_go_agent
 from agents.addendum_agent import AddendumAgent, addenda_of, apply_changes
+from agents.comparison_agent import Comparison, ComparisonAgent
 from agents.extraction_agent import ExtractionAgent
 from agents.fields import BY_NAME, GROUPS
+from agents.go_no_go_agent import Decision, GoNoGoAgent
 from agents.ingestion_agent import IngestionAgent
 from agents.llm import LLM, OllamaLLM
 from agents.qa_agent import (
@@ -39,9 +42,11 @@ from agents.qa_agent import (
     record_answer,
     small_talk_answer,
 )
+from agents.qa_cache import SemanticCache
 from agents.report_agent import ReportAgent
 from agents.retrieval_agent import RetrievalAgent
 from agents.tracing import Tracer
+from agents.usage import record_run
 from agents.validator_agent import ValidatorAgent
 from schemas.documents import DocType, Document
 from schemas.extraction import AddendumChange, BidRecord, Evidence, FieldResult, ValidationSummary
@@ -110,6 +115,7 @@ class Orchestrator:
         self.outputs_dir = outputs_dir or ROOT / "outputs"
         self.trace = trace
         self.qa_passage_tokens = int(section("qa").get("passage_tokens", 600))
+        self.qa_cache = SemanticCache(self.store.dir / "qa_cache.json", self.store.embedder)
 
     # ---- agents for one run (each run gets its own tracer) -----------------------------------------
 
@@ -299,6 +305,8 @@ class Orchestrator:
         record: BidRecord = state["record"]
         record.run["seconds"] = round(time.perf_counter() - started, 1)
         record.run["trace"] = _display(tracer.path) if self.trace else None
+        entry = record_run(self.outputs_dir, "extract", tracer, [bid_id], record.run["seconds"])
+        record.run.update(est_cost=entry["est_cost"], agent_seconds=entry["agent_seconds"])
         if write:
             json_path, md_path = ReportAgent.write(record, self.outputs_dir)
             log.info("wrote %s and %s (trace %s)", json_path, md_path, tracer.path)
@@ -336,6 +344,7 @@ class Orchestrator:
                     or overview_answer(plan, self.outputs_dir, self.store)
                     or compare_answer(plan, self.outputs_dir)
                     or record_answer(plan, self.outputs_dir)
+                    or self._cached_answer(plan)
                 )
                 if found is not None:
                     found.run_id = tracer.run_id
@@ -383,10 +392,62 @@ class Orchestrator:
         g.add_edge("answer", END)
         return g.compile()
 
+    def _data_state(self, bids: list[str]) -> str:
+        """Changes whenever the index or one of these bids' records changes (cache entries then expire)."""
+        stamps = [f"{b}:{p.stat().st_mtime_ns if (p := self.outputs_dir / f'{b}.json').exists() else 0}" for b in bids]
+        return f"{self.store.version()}|{','.join(sorted(stamps))}"
+
+    def _cached_answer(self, plan) -> Answer | None:
+        if not plan.bids:
+            return None
+        hit = self.qa_cache.lookup(plan.question, plan.bids, self._data_state(plan.bids))
+        if hit is None:
+            return None
+        answer, similarity = hit
+        return Answer(**answer | {"question": plan.question, "cached": True, "cache_similarity": similarity})
+
     def ask(self, question: str, bids: list[str] | None = None) -> Answer:
         self._warm_up()
         tracer = Tracer(out_dir=self.outputs_dir / "traces", enabled=self.trace)
+        started = time.perf_counter()
         state = self._qa_graph(tracer).invoke(
             {"question": question, "bids": bids, "evidence": []}, {"max_concurrency": self.max_parallel}
         )
-        return state["answer"]
+        answer: Answer = state["answer"]
+        if answer.mode == "llm" and not answer.cached and answer.bids:  # only model answers are worth caching
+            stored = answer.model_dump(mode="json", exclude={"question", "run_id", "usage", "cached"})
+            self.qa_cache.store(question, answer.bids, self._data_state(answer.bids), stored)
+        answer.usage = record_run(
+            self.outputs_dir,
+            "ask",
+            tracer,
+            answer.bids,
+            time.perf_counter() - started,
+            mode=answer.mode,
+            cached=answer.cached,
+        )
+        return answer
+
+    # ---- comparison and go / no-go ---------------------------------------------------------------
+
+    def compare(self, bids: list[str], summary: bool = True, write: bool = True) -> Comparison:
+        """Side-by-side report of extracted bids, with a model-written summary unless summary=False."""
+        tracer = Tracer(out_dir=self.outputs_dir / "traces", enabled=self.trace)
+        started = time.perf_counter()
+        result = ComparisonAgent(self.llm if summary else None, tracer).compare(bids, self.outputs_dir, summary)
+        result.run = record_run(self.outputs_dir, "compare", tracer, bids, time.perf_counter() - started)
+        if write:
+            comparison_agent.write(result, self.outputs_dir)
+        return result
+
+    def go_no_go(self, bid_id: str, profile: dict | None = None, write: bool = True) -> Decision:
+        """Bid / no-bid recommendation from the extracted record and the company profile."""
+        tracer = Tracer(out_dir=self.outputs_dir / "traces", enabled=self.trace)
+        started = time.perf_counter()
+        decision = GoNoGoAgent(tracer, profile).assess(bid_id, self.outputs_dir)
+        record_run(
+            self.outputs_dir, "go_no_go", tracer, [bid_id], time.perf_counter() - started, decision=decision.decision
+        )
+        if write:
+            go_no_go_agent.write(decision, self.outputs_dir)
+        return decision

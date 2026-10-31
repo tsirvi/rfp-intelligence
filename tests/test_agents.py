@@ -47,7 +47,7 @@ class ScriptedLLM:
         self.handler = handler
         self.calls: list[tuple[str, str]] = []
 
-    def structured(self, system, prompt, schema, step=None, timeout_s=None):
+    def structured(self, system, prompt, schema, step=None, timeout_s=None, max_tokens=None):
         self.calls.append((schema.__name__, prompt))
         if step is not None:
             step.tracer.count_llm_call()
@@ -450,10 +450,16 @@ def test_ask_answers_field_questions_instantly_and_others_with_the_llm(indexed, 
     assert written.mode == "llm" and [c[0] for c in llm.calls[calls:]] == ["AnswerOutput"]
     assert "Evidence:" in llm.calls[-1][1] and llm.calls[-1][1].rstrip().endswith("widgets in BidT?")
 
+    calls = len(llm.calls)
+    again = orch.ask("What colour are the widgets in BidT?")  # repeated: served by the semantic cache
+    assert again.cached and again.answer == written.answer and len(llm.calls) == calls
+    assert again.usage["cached"] and again.usage["llm_calls"] == 0
+    assert written.usage["mode"] == "llm" and written.usage["llm_calls"] == 1
+
 
 def test_answer_falls_back_to_cited_passages_when_the_model_is_too_slow():
     class SlowLLM(ScriptedLLM):
-        def structured(self, system, prompt, schema, step=None, timeout_s=None):
+        def structured(self, system, prompt, schema, step=None, timeout_s=None, max_tokens=None):
             assert timeout_s is not None and timeout_s <= 90
             raise LLMTimeout("timeout after 30s")
 
@@ -489,7 +495,7 @@ def test_answer_accepts_percent_confidence_and_normalises_not_found():
 
 def test_answer_falls_back_to_passages_when_the_model_returns_unusable_output():
     class BrokenLLM(ScriptedLLM):
-        def structured(self, system, prompt, schema, step=None, timeout_s=None):
+        def structured(self, system, prompt, schema, step=None, timeout_s=None, max_tokens=None):
             raise LLMError("AnswerOutput: bad JSON")
 
     evidence = [ev("c1", "Proposals are due June 27, 2024 at 2:00 PM CST.")]

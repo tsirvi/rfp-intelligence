@@ -1,6 +1,6 @@
 """Run a fixed set of questions through the Q&A agents and write docs/qa_log.md (the sample Q&A log).
 
-python eval/run_qa_log.py [--out docs/qa_log.md]
+python -m eval.run_qa_log [--out docs/qa_log.md]
 
 Uses the same path as the API and UI (Orchestrator.ask), so each entry shows how it was answered:
 instantly from the validated record, written by the model, or quoted passages after the time budget.
@@ -65,7 +65,7 @@ def main() -> None:
 
     header = (
         "# Sample Q&A log\n\n"
-        f"Generated {datetime.now(UTC):%Y-%m-%d %H:%M} UTC by `python eval/run_qa_log.py` with "
+        f"Generated {datetime.now(UTC):%Y-%m-%d %H:%M} UTC by `python -m eval.run_qa_log` with "
         f"`{orch.llm.model}` (Ollama, CPU) over the sample bids ({', '.join(BIDS)}). Each answer states how it was "
         "produced. Answers are generated from the documents and are informational only; check the cited "
         "pages before relying on them.\n\n"

@@ -58,16 +58,21 @@ The embedding and reranker models (about 1.3 GB) download automatically on first
 | **Web UI** (needs the API) | `streamlit run ui/app.py` |
 | **Search from the CLI** | `python -m search query "proposal due date" --bid Bid1` |
 | **Index only** | `python -m search index data/Bid1 data/Bid2` (incremental; `--force` re-parses) |
+| **Compare bids** (side-by-side report) | `python main.py --compare Bid1 Bid2` (`--no-summary` skips the model summary) |
+| **Go / no-go** recommendation | `python main.py --go-no-go Bid1` (against `company_profile.yaml`; `--profile` for another) |
+| **Cost and latency** of past runs | `python main.py --usage` |
 | **Retrieval evaluation** | `python -m eval.run_eval` (writes `eval/results.md`) |
-| **Tests** | `pytest -q` (100 tests, under 1 minute) |
+| **Sample Q&A log** | `python -m eval.run_qa_log` (writes `docs/qa_log.md`) |
+| **Everything in Docker** | `docker compose up -d`, then http://localhost:8501 (see [section 10](#10-deploying-beyond-a-laptop)) |
+| **Tests** | `pytest -q` (109 tests, under 1 minute) |
 
 `python main.py --bid <folder>` is the single command for a new bid: it parses and indexes the folder
 (skipping files already indexed with the same content), runs the agents, and writes
 `outputs/<bid>.json`, a readable `outputs/<bid>.md` and a trace in `outputs/traces/`. Add `-v` to see
 each agent step as it happens. It checks first that Ollama is running and the model is pulled.
 
-On a CPU-only laptop (Intel i7-9750H) one bid takes **18–30 minutes** and a question about **1 minute**,
-almost all of it LLM time. Search takes well under a second. See [section 10](#10-deploying-beyond-a-laptop) for GPU serving.
+On a CPU-only laptop (Intel i7-9750H) one bid takes **18–30 minutes**; a question is instant when the
+validated record or the semantic cache answers it, and 30–70 s when the model has to, almost all of it LLM time. Search takes well under a second. See [section 10](#10-deploying-beyond-a-laptop) for GPU serving.
 
 ### REST API
 
@@ -78,10 +83,14 @@ almost all of it LLM time. Search takes well under a second. See [section 10](#1
 | `POST /ask` `{"question": "...", "bids": ["Bid1"]}` | Cited answer from the Q&A agents (`bids` optional, inferred from the question) |
 | `POST /extract` `{"bid_id": "Bid1"}` | Run the extraction agents in the background; poll `GET /extract/{job_id}` |
 | `GET /records/{bid_id}` and `/records/{bid_id}/report` | The extracted JSON record and its Markdown report |
+| `POST /compare` `{"bids": ["Bid1", "Bid2"], "summary": true}` | Side-by-side comparison report (JSON and Markdown) |
+| `GET /go-no-go/{bid_id}` | Bid / no-bid recommendation with the checks behind it |
+| `GET /usage` | Runs, latency, tokens and estimated cost per kind of run; Q&A cache hit rate |
 | `GET /bids`, `GET /health` | Indexed bids and documents; index status |
 
 When the API starts it indexes every folder under `data/` (incrementally, so this is instant after the
-first time).
+first time). `POST /index` only accepts folders under `api.index_roots` (`data/` and `samples/` by default),
+so the API cannot be pointed at arbitrary paths on the server.
 
 ---
 
@@ -147,7 +156,9 @@ stays usable:
    about?" gets title, issuer, due date and the document list; "compare the bids" gets a side-by-side
    table of 12 key fields; a question about a field ("when is Bid1 due?", "is a bid bond required?",
    matched by narrow per-field patterns in `agents/fields.py`) gets that field's value and citation.
-   Only values the validator passed are used; anything else goes on to tier 2.
+   Only values the validator passed are used. A question equivalent to one already answered by the model
+   (same bids, same numbers, cosine ≥ 0.94) is served from the **semantic cache**. Anything else goes on to
+   tier 2.
 2. **Written by the model** from the top passages (about 600 tokens, split across bids), with the
    evidence placed before the question so Ollama can reuse an already-read prompt prefix.
 3. **Quoted passages** if the model has not answered within `qa.answer_budget_s` (90 s) or returns
@@ -289,6 +300,32 @@ accuracy.
 
 ---
 
+### Comparison, go / no-go, caching and cost tracking
+
+- **Comparison agent** (`agents/comparison_agent.py`). The side-by-side table and the "key differences"
+  (deadline order, bonds, submission, delivery, contract term, purchasing vehicle, fields to check by hand)
+  are computed from validated values, so they are exact and cited. The model then writes a short summary
+  citing table cells by id; a summary without a valid citation is dropped. About 75 s on CPU with the
+  summary, instant without (`--no-summary`).
+- **Go / no-go agent** (`agents/go_no_go_agent.py`). Rule-based on purpose, so each decision can be
+  explained and challenged line by line: deadline (days left against `min_days_to_prepare`), product fit,
+  manufacturer authorisation, bid-bond percentage, installation, submission method, delivery window,
+  contract length and required documents, each against `company_profile.yaml`. **NO-GO** if any check
+  fails, **REVIEW** if something needs a person (including any value the validator did not confirm), else
+  **GO**. The example profile is for a fictional reseller and assesses the 2024 sample bids as of
+  1 June 2024; assessed as of today they are NO-GO because they have closed.
+- **Semantic cache** (`agents/qa_cache.py`). A question is answered from the cache when an earlier one with
+  the same bids has cosine similarity ≥ 0.94 *and* the same numbers. The threshold was measured: rewordings
+  scored 0.945–0.995 and different-but-similar questions up to 0.909 ("…Addendum 2?" vs "…Addendum 1?",
+  which the number rule also separates). Entries expire when the index or a bid's record changes. Only
+  model-written answers are cached; record answers are instant anyway.
+- **Cost and latency per run** (`agents/usage.py`). Every extraction, question, comparison and go/no-go
+  appends one line to `outputs/runs.jsonl`: seconds, LLM calls, prompt and output tokens, time per agent,
+  cache hit and an estimated cost from `costs` in `config.yaml` (0 for the local model; enter a hosted
+  provider's prices to compare). Extraction records also carry these in `run`.
+- **Output cap.** Every LLM call is capped (`agents.max_output_tokens`, 400 for answers and summaries):
+  qwen3:4b once looped inside a JSON string for over 3,000 tokens (about 10 minutes) before the cap existed.
+
 ## 4. Retrieval evaluation
 
 `eval/questions.yaml` holds **26 questions** over both bids, each mapped to the passage(s) that answer it
@@ -399,7 +436,18 @@ These are the main targets for a larger model and more evidence per field (secti
 | Sample Q&A log (cited answers) | `docs/qa_log.md` |
 | Agent trace of a full extraction run | `docs/example_trace.jsonl` |
 | Architecture diagram | [Section 2](#2-architecture) |
-| Tests | `tests/` (parsing, chunking, index, search, API, agents) |
+| Tests | `tests/` (parsing, chunking, index, search, API, agents, reports) |
+
+**Bonus items (section 12 of the brief)**
+
+| Bonus | Where |
+|---|---|
+| Web UI for search and chat | `ui/app.py` (Streamlit): bid overview, Ask, Compare, Search, Documents |
+| OCR for scanned PDFs | `ingestion/pdf_parser.py` (Tesseract for pages without a text layer) |
+| Bid comparison agent | `agents/comparison_agent.py`; report in `outputs/comparisons/Bid1_vs_Bid2.md` |
+| Go / no-go recommendation | `agents/go_no_go_agent.py`, `company_profile.yaml`; results in `outputs/go_no_go/` |
+| Semantic caching, cost and latency per run | `agents/qa_cache.py`, `agents/usage.py`; `python main.py --usage`, `GET /usage` |
+| Docker and CI | `Dockerfile`, `docker-compose.yml` (+ `docker-compose.gpu.yml`), `.github/workflows/ci.yml` |
 
 ---
 
@@ -427,16 +475,20 @@ These are the main targets for a larger model and more evidence per field (secti
 ```
 ingestion/     parsing (PDF layout + tables + OCR, HTML), cleaning, metadata, folder pipeline
 search/        chunking, embeddings, Chroma + BM25 store, query expansion, hybrid search, reranker, CLI
-agents/        orchestrator (LangGraph), retrieval, extraction, addendum, validator, Q&A, report, tracing, fields
+agents/        orchestrator (LangGraph), retrieval, extraction, addendum, validator, Q&A, report,
+               comparison, go/no-go, semantic cache, usage ledger, tracing, fields
 schemas/       Pydantic models: documents, chunks, agent messages and the bid record
 api/           FastAPI app
-ui/            Streamlit app (bid overview, chat, search, documents)
-eval/          retrieval question set, evaluation runner, fictional Bid3 generator and answer key
-tests/         100 tests; the agent tests run the full graph against a scripted LLM
+ui/            Streamlit app (bid overview, chat, compare, search, documents)
+eval/          retrieval question set and runner, Q&A log runner, fictional Bid3 generator and answer key
+tests/         109 tests; the agent tests run the full graph against a scripted LLM
 data/          bid folders indexed at API start-up (one folder per bid)
 samples/       generated test bid (Bid3), added from the UI or the CLI
-outputs/       extracted records, reports and traces
+outputs/       extracted records and reports, comparisons/, go_no_go/, traces
+docs/          sample Q&A log, example agent trace
 main.py        one-command entry point
+config.yaml    tunable parameters        company_profile.yaml   capabilities for go / no-go
+Dockerfile, docker-compose.yml, docker-compose.gpu.yml, .github/workflows/ci.yml
 ```
 
 ---
@@ -476,23 +528,62 @@ main.py        one-command entry point
 - **Layout:** two-column PDF prose would interleave (the sample documents are single-column); addendum
   dates come from PDF metadata when the text has none (the source is recorded).
 - **Query expansion** uses a hand-written synonym list for procurement terms; it does not learn.
-- **The API has no authentication** and `POST /index` accepts any server path: it is built for local use
-  (see below).
+- **The API has no authentication.** It is built for local use or behind an authenticating proxy (see
+  below); `POST /index` is limited to folders under `api.index_roots`.
+- **Go / no-go is keyword- and rule-based.** It reads the extracted values, so it inherits extraction errors
+  (BID3's wrong submission method makes its Submission check "review"), and its product, manufacturer and
+  document matching is by keyword from `company_profile.yaml`, not by meaning.
+- **The comparison summary and Q&A answers inherit the records' errors** (e.g. Bid1's product list), since
+  they are built from the extracted values; the table marks every value that was not validated.
+- **The semantic cache trades recall for safety:** looser rewordings (similarity around 0.86) are not
+  recognised as repeats and are answered again.
+- **Docker was validated by CI (build, compose config, smoke test), not run end to end on the development
+  machine;** the Ollama image tag is `latest` and should be pinned for a real deployment.
 
 ---
 
 ## 10. Deploying beyond a laptop
 
-The design is open-source end to end, so going live means running the same models on better hardware:
+### Docker
 
-- **LLM:** run Ollama (or vLLM, for many concurrent users) with the same Qwen3 model on a GPU server
-  and set `OLLAMA_BASE_URL`. No code changes for Ollama; vLLM would need a small provider class behind
-  the `LLM` protocol in `agents/llm.py`.
-- **Before exposing the API publicly:**
-  - add authentication;
-  - replace path-based `POST /index` with uploads into a restricted directory;
-  - move the single-process job queue to a worker;
-  - keep the index on a persistent volume;
-  - serve over HTTPS.
+```bash
+docker compose up -d                                                     # any machine, CPU
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d     # NVIDIA GPU server
+```
+
+This starts Ollama, pulls `LLM_MODEL` (default `qwen3:4b`, about 2.5 GB), then the API and the UI; open
+http://localhost:8501. The image (`Dockerfile`, Python 3.11 slim with Tesseract) is shared by the API and
+the UI. `data/` and `samples/` are mounted read-only, `outputs/` read-write, and the index, model cache and
+Ollama models live in named volumes, so nothing is downloaded twice. Only the UI port is published; the API is
+bound to localhost and Ollama is internal.
+
+The CI pipeline builds this image and validates both compose files on every push; the stack was not run
+locally (Docker is not installed on the development machine). On macOS, Docker cannot use the Apple GPU, so
+Ollama in a container runs on CPU; to use the host's Ollama instead, set
+`OLLAMA_BASE_URL=http://host.docker.internal:11434` for the `api` service. On a Linux host, the container
+runs as uid 1000, so `outputs/` must be writable by that user.
+
+### CI (`.github/workflows/ci.yml`)
+
+On every push to `main` and every pull request:
+
+1. **Lint and tests:** `ruff check`, `ruff format --check`, `pytest`.
+2. **Retrieval evaluation:** indexes the sample bids and runs all six configurations
+   (`python -m eval.run_eval --available-only`). The saved BidNet pages are not in the repository, so the
+   6 expected passages from them are dropped (25 of 26 questions remain) and the numbers differ slightly
+   from `eval/results.md`; the results appear in the job summary and as an artifact.
+3. **Docker:** validates the compose files, builds the image and runs a smoke test.
+
+### Going live
+
+- **LLM:** a GPU server running Ollama (the GPU compose file), or vLLM for many concurrent users behind a
+  small provider class implementing the `LLM` protocol in `agents/llm.py`. A larger model is the main
+  accuracy lever (untested here).
+- **Required before exposing it to the internet:**
+  - an authenticating reverse proxy (e.g. Caddy or nginx with SSO or basic auth) and HTTPS in front of the
+    UI; the API and UI have no login of their own;
+  - keep the API and Ollama off the public network (as the compose file does);
+  - replace folder indexing (`api.index_roots`) with uploads if users should add bids;
+  - move the in-process job queue to a worker if several people extract at once.
 - **Data handling:** bid documents and portal pages may contain customer and account data; the parser
   strips portal session data before indexing, but raw files should be stored and shared accordingly.

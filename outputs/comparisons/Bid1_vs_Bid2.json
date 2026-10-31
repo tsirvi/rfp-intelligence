@@ -1,0 +1,421 @@
+{
+  "bids": [
+    "Bid1",
+    "Bid2"
+  ],
+  "generated_at": "2026-10-31T02:49:13+00:00",
+  "fields": {
+    "Bid Number": {
+      "Bid1": {
+        "value": "JA-207652",
+        "status": "passed",
+        "source": {
+          "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "#E20P4600040",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Title": {
+      "Bid1": {
+        "value": "Student and Staff Computing Devices SOURCING #168884",
+        "status": "passed",
+        "source": {
+          "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "Dell Laptops w/Extended Warranty",
+        "status": "passed",
+        "source": {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "company_name": {
+      "Bid1": {
+        "value": "Dallas Independent School District",
+        "status": "passed",
+        "source": {
+          "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "State of Maryland Treasurer's Office",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "contact_info": {
+      "Bid1": {
+        "value": "JASMINE ALZATE; JALZATE@dallasisd.org",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 2,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "Tamaira Hawkins | 410-260-7533 | thawkins@treasurer.state.md.us",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 2,
+          "page_end": 3,
+          "chunk_id": null
+        }
+      }
+    },
+    "Due Date": {
+      "Bid1": {
+        "value": "2024-07-09 14:00:00 CST",
+        "status": "passed",
+        "source": {
+          "file": "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "2024-06-10 14:00 EDT",
+        "status": "passed",
+        "source": {
+          "file": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Pre Bid Meeting": {
+      "Bid1": {
+        "value": "06/10/2024 03:00 PM EDT; Mandatory: No",
+        "status": "passed",
+        "source": {
+          "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": null,
+        "status": "not_found",
+        "source": null
+      }
+    },
+    "Delivery Date": {
+      "Bid1": {
+        "value": null,
+        "status": "not_found",
+        "source": null
+      },
+      "Bid2": {
+        "value": "06/10/2024",
+        "status": "failed",
+        "source": null
+      }
+    },
+    "Bid Submission Type": {
+      "Bid1": {
+        "value": "Dallas ISD prefers responses to be submitted online via our electronic system. Manual submissions must be delivered to the Procurement Services Department, in a sealed envelope by the date and time stated. No fax or email submissions will be accepted. Only one format is needed. The manual submission shall consist of one (1) original hard copy.",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 9,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "eMaryland Marketplace Advantage (eMMA) e-Procurement system",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Term of Bid": {
+      "Bid1": {
+        "value": "Initial Term: 3 years; Renewal 1: 1 year; Renewal 2: 1 year; Total max 5 years",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 2,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": null,
+        "status": "not_found",
+        "source": null
+      }
+    },
+    "Payment Terms": {
+      "Bid1": {
+        "value": "Prime vendors must pay all submitted invoices within 10 days of receiving district payment; no withholding of non-disputed payments; max 5% retainage",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 51,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "Email invoices to: STOaccountspayable@treasurer.state.md.us; Total Minimum Payment Due is the greater of $20 or 3% of the New Balance rounded up to the next dollar, plus all past due amounts",
+        "status": "passed",
+        "source": {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 3,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Bid Bond Requirement": {
+      "Bid1": {
+        "value": "Not required",
+        "status": "failed",
+        "source": null
+      },
+      "Bid2": {
+        "value": null,
+        "status": "not_found",
+        "source": null
+      }
+    },
+    "Any Additional Documentation Required": {
+      "Bid1": {
+        "value": "MWBE Forms; W9 Form; Punch Out Process (optional)",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 32,
+          "page_end": 34,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "Mercury Affidavit (https://doit.maryland.gov/contracts/Documents/hardware_contract/hwmercury_affidavit.pdf); W-9; Social Security Number or Federal Tax ID number",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 2,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Contract or Cooperative to use": {
+      "Bid1": {
+        "value": "Central Texas Purchasing Alliance (CTPA)",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 20,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "MFG for Registration": {
+      "Bid1": {
+        "value": "Manufacturer or Authorized Reseller",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 3,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "Dell",
+        "status": "passed",
+        "source": {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 3,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Product": {
+      "Bid1": {
+        "value": "Display Monitor - Touch (5,000 each); Display Monitor - Non-Touch (5,000 each)",
+        "status": "passed",
+        "source": {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 35,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": "SI# CC7802 Dell Latitude 5550; Dell Thunderbolt 4 Dock – WD22TB4",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Model_no": {
+      "Bid1": {
+        "value": null,
+        "status": "not_found",
+        "source": null
+      },
+      "Bid2": {
+        "value": "Latitude 5550; WD22TB4",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Part_no": {
+      "Bid1": {
+        "value": null,
+        "status": "not_found",
+        "source": null
+      },
+      "Bid2": {
+        "value": "SI# CC7802; 30",
+        "status": "passed",
+        "source": {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Product Specification": {
+      "Bid1": {
+        "value": "CPU: Intel i5 14th Gen or equivalent; RAM: 16GB (Tier 1 Staff); 32GB (Tier 2 Staff); Storage: 512GB NVMe SSD (Tier 1); 1TB NVMe SSD (Tier 2); Display: 23.8\" Touch Screen (Staff); 10.2\" Retina (Students); Wireless: 802.11AX WiFi-6E and Bluetooth 5.1 (Staff); 802.11AC and Bluetooth 4.2 (Students); Battery: Minimum 10 Hours; Power Supply: Included; Warranty: 1-year (Students); 3-year (Staff); iOS 17 (Students); Windows 11 Pro (Staff); Additional: Laser etching only on Laptops (per E6); No etching on monitors (per E6); Minimum 1-year warranty for Chromebooks (per E7); 3-year warranty for Windows laptops (per E7); USB 3.1 minimum (per E6)",
+        "status": "failed",
+        "source": null
+      },
+      "Bid2": {
+        "value": "Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 threads, up to 4.3 GHz Turbo); Windows 11 Pro, English, Brazilian Portuguese PT-BR, French, Spanish; No Microsoft Office License Included - 30 day Trial Offer Only; 16 GB: 2 x 8 GB, DDR5, 5600 MT/s (5200 MT/s with 13th Gen Intel Core processors); 256 GB, M.2 2230, TLC, Gen 4 PCIe NVMe, SSD; 15.6\", FHD 1920x1080, 60Hz, IPS, Non-Touch, AG, 250 nit, 45%; SI# CC7802 Dell Latitude 5550",
+        "status": "passed",
+        "source": {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      }
+    },
+    "Installation": {
+      "Bid1": {
+        "value": "Yes",
+        "status": "passed",
+        "source": {
+          "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
+          "page": 1,
+          "page_end": null,
+          "chunk_id": null
+        }
+      },
+      "Bid2": {
+        "value": null,
+        "status": "not_found",
+        "source": null
+      }
+    }
+  },
+  "differences": [
+    "Deadlines: Bid2 (2024-06-10 14:00 EDT), then Bid1 (2024-07-09 14:00:00 CST).",
+    "Submission: Bid1: Dallas ISD prefers responses to be submitted online via our electronic system. Manual submissions must be delivered to …; Bid2: eMaryland Marketplace Advantage (eMMA) e-Procurement system.",
+    "Contract term: Bid1: Initial Term: 3 years; Renewal 1: 1 year; Renewal 2: 1 year; Total max 5 years; not stated for Bid2.",
+    "Purchasing vehicle: Bid1: Central Texas Purchasing Alliance (CTPA); Bid2: Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007.",
+    "Check by hand for Bid1: Bid Bond Requirement, Product Specification (the validator did not confirm these).",
+    "Check by hand for Bid2: Delivery Date (the validator did not confirm these)."
+  ],
+  "summary": "Key differences: Bid1 has a later deadline ([Addendum 2 RFP JA-207652 Stud…, p. 1]: 2024-07-09) vs Bid2 ([Dell Laptops w_Extended Warra…, p. 1]: 2024-06-10); Bid1 requires online submission with manual options [JA-207652 Student and Staff C…, p. 9] while Bid2 uses eMMA [PORFP_-_Dell_Laptop_Final.pdf, p. 1]; Bid1 offers 5-year max term [JA-207652 Student and Staff C…, p. 2] vs Bid2's unspecified term; Bid1 has 10-day payment terms [JA-207652 Student and Staff C…, p. 51] vs Bid2's $20/3% payment rule [Dell_Laptop_Specs.pdf, p. 3]; Bid1 needs MWBE forms [JA-207652 Student and Staff C…, pp. 32-34] while Bid2 requires Mercury Affidavit [PORFP_-_Dell_Laptop_Final.pdf, p. 2]; Bid1 uses CTPA [JA-207652 Student and Staff C…, p. 20] vs Bid2's 2015 Master Contract [PORFP_-_Dell_Laptop_Final.pdf, p. 1]; Bid2 specifies Dell hardware ([PORFP_-_Dell_Laptop_Final.pdf, p. 3]-[Dell_Laptop_Specs.pdf, p. 1]) while Bid1 lists generic monitors [JA-207652 Student and Staff C…, p. 35]. All matter for compliance and execution timing.",
+  "summary_sources": [
+    "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf, p. 1",
+    "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf, p. 1",
+    "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html, p. 1",
+    "Dell_Laptop_Specs.pdf, p. 1",
+    "Dell_Laptop_Specs.pdf, p. 3",
+    "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 2",
+    "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 20",
+    "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 3",
+    "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 35",
+    "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 51",
+    "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 9",
+    "JA-207652 Student and Staff Computing Devices FINAL.pdf, pp. 32-34",
+    "PORFP_-_Dell_Laptop_Final.pdf, p. 1",
+    "PORFP_-_Dell_Laptop_Final.pdf, p. 2",
+    "PORFP_-_Dell_Laptop_Final.pdf, p. 3"
+  ],
+  "run": {
+    "ts": "2026-10-31T02:50:04+00:00",
+    "run_id": "20261031T024913-4220da",
+    "kind": "compare",
+    "bids": [
+      "Bid1",
+      "Bid2"
+    ],
+    "seconds": 51.24,
+    "llm_calls": 1,
+    "prompt_tokens": 982,
+    "output_tokens": 344,
+    "est_cost": 0.0,
+    "currency": "USD",
+    "agent_seconds": {
+      "comparison": 51.243
+    }
+  }
+}

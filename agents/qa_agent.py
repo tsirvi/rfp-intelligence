@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 import re
 import time
 from pathlib import Path
@@ -13,6 +12,7 @@ from pydantic import BaseModel, Field
 from agents.extraction_agent import _EVIDENCE_REF, format_evidence
 from agents.fields import ASK_PATTERNS
 from agents.llm import LLM, LLMError, LLMTimeout
+from agents.records import record_fields, short_label, validated
 from agents.tracing import Tracer
 from schemas.documents import DocType
 from schemas.extraction import NOT_FOUND, AnswerOutput, Evidence, Source
@@ -121,6 +121,9 @@ class Answer(BaseModel):
     # passages: the model ran out of time or failed, so the most relevant cited sentences are shown instead;
     # chat: a help text for greetings
     mode: Literal["record", "llm", "passages", "chat"] = "llm"
+    cached: bool = False  # served from the semantic cache (a stored answer to an equivalent question)
+    cache_similarity: float | None = None
+    usage: dict = Field(default_factory=dict)  # this run's ledger entry: seconds, tokens, LLM calls, est. cost
 
 
 def _singular(word: str) -> str:
@@ -192,16 +195,6 @@ HELP = (
 _SENTENCE = re.compile(r"(?<=[.!?])\s+|\n+")
 
 
-def _record_fields(outputs_dir: Path, bid: str) -> dict | None:
-    path = outputs_dir / f"{bid}.json"
-    return json.loads(path.read_text("utf-8"))["fields"] if path.exists() else None
-
-
-def _validated(field: dict | None) -> bool:
-    """A value the validator passed, with a citation: the only kind answered without the LLM."""
-    return bool(field and field.get("status") == "passed" and field.get("value") and field.get("sources"))
-
-
 def match_fields(question: str, limit: int = 3) -> list[str]:
     """Record fields the question asks for directly (see fields.ASK_PATTERNS); [] if none or too many."""
     names = [name for name, pattern in _ASK.items() if pattern.search(question)]
@@ -219,12 +212,12 @@ def record_answer(plan: QAPlan, outputs_dir: Path) -> Answer | None:
         return None
     lines, sources, confidences = [], {}, []
     for bid in plan.bids:
-        fields = _record_fields(outputs_dir, bid)
+        fields = record_fields(outputs_dir, bid)
         if fields is None:
             return None
         for name in names:
             f = fields.get(name)
-            if not _validated(f):
+            if not validated(f):
                 return None
             cited = [Source(**s) for s in f["sources"][:3]]
             sources.update({c.label(): c for c in cited})
@@ -258,11 +251,11 @@ def overview_answer(plan: QAPlan, outputs_dir: Path, store: IndexStore) -> Answe
         return None
     parts, citations = [], {}
     for bid in plan.bids:
-        fields = _record_fields(outputs_dir, bid) or {}
+        fields = record_fields(outputs_dir, bid) or {}
         facts = []
         for name, label in (("Title", ""), ("company_name", "issued by "), ("Due Date", "due ")):
             f = fields.get(name)
-            if _validated(f):
+            if validated(f):
                 source = Source(**f["sources"][0])
                 citations[source.label()] = source
                 facts.append(f"{label}{f['value']} [{source.label()}]")
@@ -332,7 +325,7 @@ def compare_answer(plan: QAPlan, outputs_dir: Path) -> Answer | None:
     topic = {_singular(w) for w in _WORD.findall(plan.question.lower())} - _STOP - _COMPARE_WORDS
     if topic - {_singular(b.lower()) for b in plan.bids}:
         return None  # "compare the warranty…": a specific topic, answered elsewhere
-    records = {bid: _record_fields(outputs_dir, bid) for bid in plan.bids}
+    records = {bid: record_fields(outputs_dir, bid) for bid in plan.bids}
     if any(fields is None for fields in records.values()):
         return None
     rows, citations = [], {}
@@ -340,11 +333,10 @@ def compare_answer(plan: QAPlan, outputs_dir: Path) -> Answer | None:
         cells = []
         for bid in plan.bids:
             f = records[bid].get(name) or {}
-            if _validated(f):
+            if validated(f):
                 source = Source(**f["sources"][0])
                 citations[source.label()] = source
-                short = source.file if len(source.file) <= 30 else source.file[:29] + "…"
-                cells.append(f"{_cell(f['value'])} [{source.label().replace(source.file, short, 1)}]")
+                cells.append(f"{_cell(f['value'])} [{short_label(source)}]")
             elif f.get("status") == "failed":
                 cells.append("⚠️ extracted value not validated")
             else:
@@ -418,7 +410,9 @@ class QAAgent:
             try:
                 if self._remaining() < 3:
                     raise LLMTimeout("no time left for the model")
-                out = self.llm.structured(SYSTEM, prompt, AnswerOutput, step, timeout_s=self._remaining())
+                out = self.llm.structured(
+                    SYSTEM, prompt, AnswerOutput, step, timeout_s=self._remaining(), max_tokens=400
+                )
                 cited = [e for e in dict.fromkeys(out.evidence_ids or _EVIDENCE_REF.findall(out.answer)) if e in ids]
                 cited = [e for e in cited if not ids[e].chunk_id.startswith("doc:")] or cited
                 if out.answer.strip().rstrip(".") != NOT_FOUND and not cited:
@@ -431,6 +425,7 @@ class QAAgent:
                         AnswerOutput,
                         step,
                         timeout_s=self._remaining(),
+                        max_tokens=400,
                     )
                     cited = [e for e in dict.fromkeys(out.evidence_ids) if e in ids]
             except LLMError as exc:  # timeout, unusable output or Ollama down: quote the passages instead

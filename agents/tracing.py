@@ -62,6 +62,7 @@ class Tracer:
         self.enabled = enabled
         self._lock = threading.Lock()
         self.totals = {"steps": 0, "llm_calls": 0, "prompt_tokens": 0, "output_tokens": 0, "errors": 0}
+        self.agent_seconds: dict[str, float] = {}  # time spent per agent (parallel steps overlap)
 
     @contextmanager
     def step(self, agent: str, action: str, input: Any = None) -> Iterator[Step]:
@@ -92,6 +93,8 @@ class Tracer:
             self.totals["prompt_tokens"] += record["prompt_tokens"]
             self.totals["output_tokens"] += record["output_tokens"]
             self.totals["errors"] += bool(record["error"])
+            agent = record["agent"]
+            self.agent_seconds[agent] = round(self.agent_seconds.get(agent, 0.0) + record["latency_s"], 3)
             log.info(
                 "step agent=%s action=%s latency=%.1fs tokens=%d/%d error=%s",
                 record["agent"],

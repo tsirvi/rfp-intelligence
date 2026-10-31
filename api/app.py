@@ -9,6 +9,9 @@ GET  /search?q=...&bid_id=   hybrid search with citations
 POST /ask                    question answering with citations (multi-agent)
 POST /extract                extract the 20-field record for an indexed bid (background; poll GET /extract/{job_id})
 GET  /records/{bid_id}       the latest extracted record (JSON); /records/{bid_id}/report for Markdown
+POST /compare                side-by-side comparison report of extracted bids
+GET  /go-no-go/{bid_id}      bid / no-bid recommendation against the company profile
+GET  /usage                  cost and latency per kind of run, Q&A cache hit rate
 """
 
 from __future__ import annotations
@@ -98,6 +101,11 @@ class BidOut(BaseModel):
 class AskRequest(BaseModel):
     question: str = Field(min_length=1)
     bids: list[str] | None = Field(default=None, description="Restrict to these bids; default: inferred")
+
+
+class CompareRequest(BaseModel):
+    bids: list[str] = Field(min_length=2, description="Extracted bids to compare")
+    summary: bool = Field(default=True, description="Add a model-written summary (slower on CPU)")
 
 
 class ExtractRequest(BaseModel):
@@ -228,13 +236,22 @@ def bids() -> list[BidOut]:
     return out
 
 
+def index_roots() -> list[Path]:
+    roots = section("api").get("index_roots") or ["data"]
+    return [(r if (r := Path(root)).is_absolute() else ROOT / r).resolve() for root in roots]
+
+
 @app.post("/index", response_model=IndexJob, status_code=202)
 def index(req: IndexRequest, background: BackgroundTasks) -> IndexJob:
     path = Path(req.path).expanduser()
-    path = path if path.is_absolute() else ROOT / path
+    path = (path if path.is_absolute() else ROOT / path).resolve()
+    # Only folders under the configured roots: the API must not read arbitrary paths on the server.
+    if not any(path.is_relative_to(root) for root in index_roots()):
+        allowed = ", ".join(str(r.relative_to(ROOT)) if r.is_relative_to(ROOT) else str(r) for r in index_roots())
+        raise HTTPException(status_code=403, detail=f"Bid folders must be inside: {allowed}")
     if not path.is_dir():
         raise HTTPException(status_code=400, detail=f"Not a folder: {req.path}")
-    job = submit_index_job(path.resolve(), req.bid_id, req.force)
+    job = submit_index_job(path, req.bid_id, req.force)
     background.add_task(run_index_job, job, req.force)
     return job
 
@@ -353,3 +370,36 @@ def record(bid_id: str) -> dict:
     if not path.is_file():
         raise HTTPException(status_code=404, detail=f"No extracted record for {bid_id} yet")
     return json.loads(path.read_text("utf-8"))
+
+
+def _extracted(bids: list[str]) -> None:
+    s = get_state()
+    missing = [b for b in bids if not (s.orchestrator.outputs_dir / f"{b}.json").is_file()]
+    if missing:
+        raise HTTPException(status_code=404, detail=f"No extracted record for {', '.join(missing)} yet")
+
+
+@app.post("/compare")
+def compare(req: CompareRequest) -> dict:
+    """Side-by-side report; the model summary takes about a minute on CPU (summary=false skips it)."""
+    _extracted(req.bids)
+    result = get_state().orchestrator.compare(req.bids, summary=req.summary)
+    from agents.comparison_agent import to_markdown
+
+    return result.model_dump(mode="json") | {"markdown": to_markdown(result)}
+
+
+@app.get("/go-no-go/{bid_id}")
+def go_no_go(bid_id: str) -> dict:
+    _extracted([bid_id])
+    from agents.go_no_go_agent import to_markdown
+
+    decision = get_state().orchestrator.go_no_go(bid_id)
+    return decision.model_dump(mode="json") | {"markdown": to_markdown(decision)}
+
+
+@app.get("/usage")
+def usage() -> dict:
+    from agents.usage import summary
+
+    return summary(get_state().orchestrator.outputs_dir)

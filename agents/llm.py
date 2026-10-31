@@ -35,7 +35,13 @@ class LLM(Protocol):
     model: str
 
     def structured(
-        self, system: str, prompt: str, schema: type[T], step: Step | None = None, timeout_s: float | None = None
+        self,
+        system: str,
+        prompt: str,
+        schema: type[T],
+        step: Step | None = None,
+        timeout_s: float | None = None,
+        max_tokens: int | None = None,
     ) -> T: ...
 
 
@@ -55,6 +61,7 @@ class OllamaLLM:
         self.timeout_s = float(timeout_s or cfg.get("llm_timeout_s", 600))
         self.num_ctx = int(cfg.get("num_ctx", 8192))
         self.keep_alive = str(cfg.get("keep_alive", "30m"))
+        self.max_output_tokens = int(cfg.get("max_output_tokens", 1500))
         self.max_attempts = max_attempts
 
     def check(self) -> None:
@@ -79,16 +86,28 @@ class OllamaLLM:
             log.warning("could not preload %s: %s", self.model, exc)
 
     def structured(
-        self, system: str, prompt: str, schema: type[T], step: Step | None = None, timeout_s: float | None = None
+        self,
+        system: str,
+        prompt: str,
+        schema: type[T],
+        step: Step | None = None,
+        timeout_s: float | None = None,
+        max_tokens: int | None = None,
     ) -> T:
-        """timeout_s: a hard limit for this call (Q&A answer budget); a timeout is then raised, not retried."""
+        """timeout_s: a hard limit for this call (Q&A answer budget); a timeout is then raised, not retried.
+        max_tokens: output cap for this call; every call is capped (agents.max_output_tokens), because a small
+        model can loop inside a JSON string and generate for many minutes."""
         payload = {
             "model": self.model,
             "messages": [{"role": "system", "content": system}, {"role": "user", "content": prompt}],
             "format": schema.model_json_schema(),
             "stream": False,
             "think": False,  # qwen3 reasoning traces cost minutes on CPU and are not needed here
-            "options": {"temperature": self.temperature, "num_ctx": self.num_ctx},
+            "options": {
+                "temperature": self.temperature,
+                "num_ctx": self.num_ctx,
+                "num_predict": max_tokens or self.max_output_tokens,
+            },
             "keep_alive": self.keep_alive,  # keep the model and its prompt cache loaded between questions
         }
         last_error = ""

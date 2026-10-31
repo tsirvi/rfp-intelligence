@@ -1,0 +1,75 @@
+# Whole stack: Ollama (LLM), the API and the UI.
+#
+#   docker compose up -d                 CPU (any machine; as slow as a laptop)
+#   docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d     NVIDIA GPU server
+#
+# Then open http://localhost:8501. The first start pulls the LLM (about 2.5 GB for qwen3:4b) and, on the first
+# search, the embedding and reranker models (about 1.3 GB); both are kept in volumes.
+#
+# Only the UI is published. The API and Ollama have no authentication, so they stay on the internal network
+# (the API is bound to localhost for scripts on the host). Put an authenticating reverse proxy in front of
+# the UI before exposing it to the internet; see README, "Deployment".
+
+services:
+  ollama:
+    image: ollama/ollama:latest  # pin a specific version for reproducible deployments
+    volumes:
+      - ollama:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  ollama-pull:  # one-off: downloads the model into the shared volume, then exits
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: ollama:11434
+    entrypoint: ["ollama", "pull", "${LLM_MODEL:-qwen3:4b}"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build: .
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      LLM_MODEL: ${LLM_MODEL:-qwen3:4b}
+      INDEX_DIR: /app/index
+      DATA_DIR: /app/data
+    volumes:
+      - ./data:/app/data:ro
+      - ./samples:/app/samples:ro
+      - ./outputs:/app/outputs
+      - index:/app/index
+      - models:/models
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      ollama-pull:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+    restart: unless-stopped
+
+  ui:
+    build: .
+    command: ["streamlit", "run", "ui/app.py", "--server.address", "0.0.0.0", "--server.port", "8501",
+              "--server.headless", "true", "--browser.gatherUsageStats", "false"]
+    environment:
+      API_URL: http://api:8000
+    ports:
+      - "8501:8501"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  ollama:
+  index:
+  models:

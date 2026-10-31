@@ -1,0 +1,80 @@
+{
+  "bid_id": "Bid1",
+  "decision": "REVIEW",
+  "company": "Example Education Technology Reseller (fictional)",
+  "evaluation_date": "2024-06-01",
+  "generated_at": "2026-10-31T02:50:07+00:00",
+  "checks": [
+    {
+      "name": "Deadline",
+      "outcome": "pass",
+      "reason": "38 days left to prepare (minimum 7).",
+      "field": "Due Date",
+      "value": "2024-07-09 14:00:00 CST",
+      "source": "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf, p. 1"
+    },
+    {
+      "name": "Product fit",
+      "outcome": "pass",
+      "reason": "Within our product lines: computing device, display, monitor.",
+      "field": "Product",
+      "value": "Display Monitor - Touch (5,000 each); Display Monitor - Non-Touch (5,000 each)",
+      "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 35"
+    },
+    {
+      "name": "Manufacturer",
+      "outcome": "review",
+      "reason": "Manufacturer authorisation required, but no manufacturer is named; confirm which.",
+      "field": "MFG for Registration",
+      "value": "Manufacturer or Authorized Reseller",
+      "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 3"
+    },
+    {
+      "name": "Bid bond",
+      "outcome": "review",
+      "reason": "Bid bond value not confirmed by the validator.",
+      "field": "Bid Bond Requirement",
+      "value": "Not required",
+      "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 17"
+    },
+    {
+      "name": "Installation",
+      "outcome": "pass",
+      "reason": "Installation required; we provide it.",
+      "field": "Installation",
+      "value": "Yes",
+      "source": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf, p. 1"
+    },
+    {
+      "name": "Submission",
+      "outcome": "pass",
+      "reason": "We can submit this way (electronic, paper).",
+      "field": "Bid Submission Type",
+      "value": "Dallas ISD prefers responses to be submitted online via our electronic system. Manual submissions must be delivered to the Procurement Services Department, in a sealed envelope by the date and time stated. No fax or email submissions will be accepted. Only one format is needed. The manual submission shall consist of one (1) original hard copy.",
+      "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 9"
+    },
+    {
+      "name": "Contract term",
+      "outcome": "pass",
+      "reason": "Up to 5 years; we commit to 5 at most.",
+      "field": "Term of Bid",
+      "value": "Initial Term: 3 years; Renewal 1: 1 year; Renewal 2: 1 year; Total max 5 years",
+      "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 2"
+    },
+    {
+      "name": "Required documents",
+      "outcome": "pass",
+      "reason": "We can supply all 3 required documents.",
+      "field": "Any Additional Documentation Required",
+      "value": "MWBE Forms; W9 Form; Punch Out Process (optional)",
+      "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, pp. 32-34"
+    }
+  ],
+  "summary": "No blocker found; confirm before bidding: Manufacturer; Bid bond.",
+  "counts": {
+    "pass": 6,
+    "review": 2,
+    "fail": 0,
+    "skip": 0
+  }
+}

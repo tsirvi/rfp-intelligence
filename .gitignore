@@ -11,3 +11,6 @@ index/
 data/**/*.html
 # Per-run agent traces (one reviewed example is kept in docs/example_trace.jsonl)
 outputs/traces/
+
+# Local run ledger (cost and latency per run)
+outputs/runs.jsonl

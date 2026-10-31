@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -19,6 +21,7 @@ def client(tmp_path, monkeypatch):
     state.index_lock = api_app.threading.Lock()
     state.extract_jobs, state.extract_lock, state._orchestrator = {}, api_app.threading.Lock(), None
     monkeypatch.setattr(api_app, "state", state)
+    monkeypatch.setattr(api_app, "index_roots", lambda: [tmp_path.resolve()])
     return TestClient(api_app.app)  # not used as a context manager, so startup indexing does not run
 
 
@@ -84,3 +87,35 @@ def test_extract_does_not_queue_a_second_run_of_the_same_bid(client, bid, monkey
     first = client.post("/extract", json={"bid_id": "BidQ"}).json()
     again = client.post("/extract", json={"bid_id": "BidQ"}).json()
     assert again["job_id"] == first["job_id"] and len(api_app.state.extract_jobs) == 1
+
+
+def test_index_refuses_folders_outside_the_allowed_roots(client, tmp_path):
+    outside = tmp_path.parent / "elsewhere"
+    assert client.post("/index", json={"path": str(outside)}).status_code == 403
+    assert client.post("/index", json={"path": "/etc"}).status_code == 403
+
+
+def test_compare_go_no_go_and_usage(client, bid, tmp_path, monkeypatch):
+    from agents.orchestrator import Orchestrator
+
+    client.post("/index", json={"path": str(bid)})
+    out = tmp_path / "out"
+    out.mkdir()
+    source = [{"file": "RFP.pdf", "page": 1}]
+    fields = {"Due Date": {"value": "2024-06-27 14:00 CST", "status": "passed", "sources": source}}
+    for b in ("BidQ", "BidR"):
+        (out / f"{b}.json").write_text(json.dumps({"fields": fields}))
+    state = api_app.state
+    state._orchestrator = Orchestrator(
+        store=state.store, llm=None, searcher=state.searcher, outputs_dir=out, trace=False
+    )
+
+    assert client.post("/compare", json={"bids": ["BidQ", "Nope"]}).status_code == 404
+    report = client.post("/compare", json={"bids": ["BidQ", "BidR"], "summary": False}).json()
+    assert report["fields"]["Due Date"]["BidQ"]["value"] == "2024-06-27 14:00 CST"
+    assert "| Due Date |" in report["markdown"]
+
+    decision = client.get("/go-no-go/BidQ").json()
+    assert decision["decision"] in ("GO", "REVIEW", "NO-GO") and decision["checks"]
+    usage = client.get("/usage").json()
+    assert usage["by_kind"]["compare"]["runs"] == 1 and usage["by_kind"]["go_no_go"]["runs"] == 1

@@ -61,6 +61,18 @@ def check_ground_truth(store: IndexStore, questions: list[dict[str, Any]]) -> li
     ]
 
 
+def only_indexed(store: IndexStore, questions: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], int]:
+    """Keep expected passages whose source file is indexed; questions left with none are dropped."""
+    files = {(c.bid_id, c.file_name) for c in store.chunks()}
+    kept, dropped = [], 0
+    for q in questions:
+        relevant = [p for p in q["relevant"] if any(b == q["bid"] and p["file"].lower() in f.lower() for b, f in files)]
+        dropped += len(q["relevant"]) - len(relevant)
+        if relevant:
+            kept.append(q | {"relevant": relevant})
+    return kept, dropped
+
+
 def score_question(ranked: list[Chunk], relevant: list[dict[str, str]]) -> dict[str, Any]:
     # Rank (1-based) at which each expected passage is first found, or None.
     found = [next((i for i, c in enumerate(ranked, 1) if is_match(c, p)), None) for p in relevant]
@@ -108,10 +120,18 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="python -m eval.run_eval")
     parser.add_argument("--configs", nargs="+", choices=list(CONFIGS), default=list(CONFIGS))
     parser.add_argument("--out", type=Path, default=HERE)
+    parser.add_argument(
+        "--available-only",
+        action="store_true",
+        help="Drop expected passages from files that are not indexed (e.g. CI without the BidNet pages)",
+    )
     args = parser.parse_args()
 
     store = IndexStore()
     questions = load_questions()
+    if args.available_only:
+        questions, dropped = only_indexed(store, questions)
+        print(f"--available-only: dropped {dropped} expected passages; {len(questions)} questions remain\n")
     if problems := check_ground_truth(store, questions):
         raise SystemExit("Ground truth not found in the index (index the sample bids first):\n" + "\n".join(problems))
 

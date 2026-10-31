@@ -1,6 +1,6 @@
 # Sample Q&A log
 
-Generated 2026-10-30 17:47 UTC by `python eval/run_qa_log.py` with `qwen3:4b` (Ollama, CPU) over the sample bids (Bid1, Bid2). Each answer states how it was produced. Answers are generated from the documents and are informational only; check the cited pages before relying on them.
+Generated 2026-10-30 17:47 UTC by `python -m eval.run_qa_log` with `qwen3:4b` (Ollama, CPU) over the sample bids (Bid1, Bid2). Each answer states how it was produced. Answers are generated from the documents and are informational only; check the cited pages before relying on them.
 
 Traces for each answer are in `outputs/traces/<trace id>.jsonl`.
 
@@ -196,4 +196,4 @@ No, vendors cannot submit proposals by email for Bid1. The RFP states: 'No fax o
 documents hold partial information, which the guardrail prefers to a guess. 7 answers came instantly from
 the validated record; the 5 that needed the model took 26–67 s on CPU, within the 90 s budget.
 
-This review is written by hand; re-running `eval/run_qa_log.py` regenerates the answers above it.
+This review is written by hand; re-running `python -m eval.run_qa_log` regenerates the answers above it.

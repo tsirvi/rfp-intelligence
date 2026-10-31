@@ -1,0 +1,26 @@
+# Company capabilities for the go / no-go recommendation (agents/go_no_go_agent.py).
+# An example profile for a fictional reseller; edit it to describe your own company, or point
+# COMPANY_PROFILE at another file. Every rule below is optional: leave a value out to skip that check.
+
+company: Example Education Technology Reseller (fictional)
+
+# Date the decision is made for (YYYY-MM-DD); leave it empty to use today. Set to 1 June 2024 here so the
+# sample bids, which closed in June-July 2024, are assessed as they would have been while open.
+evaluation_date: 2024-06-01
+min_days_to_prepare: 7          # fewer days than this before the due date: no-go
+
+# What we sell: at least one of these words must appear in the bid's products or title, or it is out of scope.
+product_keywords: [laptop, chromebook, desktop, tablet, monitor, display, projector, computing device, dock]
+
+# Manufacturers we are authorised to resell. A bid that requires another manufacturer is flagged for review
+# ("approved equal" bids included, since an equivalent product would have to be qualified).
+authorized_manufacturers: [Dell, HP, Lenovo, Apple, Acer]
+
+max_bid_bond_percent: 5         # largest bid bond (percent of the bid) we can post
+provides_installation: true     # we can install / deploy / image devices
+submission_methods: [electronic, portal, online, email, hard copy, sealed]   # ways we can submit
+min_delivery_days: 30           # we need at least this many days after award to deliver
+max_contract_years: 5           # longest contract (including renewals) we will commit to
+
+# Documents we can supply; each required document must match one of these words, or it is flagged.
+documents_we_provide: [W-9, W9, insurance, affidavit, non-collusion, references, MWBE, M/WBE, signature, addendum, notar, tax id, social security, punch out]

@@ -1,0 +1,13 @@
+.git
+.venv
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+# Mounted as volumes at run time, not baked into the image
+data/
+samples/
+index/
+outputs/
