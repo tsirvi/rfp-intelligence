@@ -1,5 +1,8 @@
 # RFP Intelligence Platform
 
+**▶️ [Demo video](https://drive.google.com/file/d/1Zlkola6VfkBY5ATsIDoeHQX5rjK6aYuT/view?usp=drive_link)** (Google Drive): a walkthrough of ingestion, search, the agents, Q&A,
+comparison and go / no-go.
+
 A retrieval-augmented search engine and a multi-agent system for bid / RFP documents. Point it at a bid
 folder (HTML portal pages and PDFs, including addenda) and it will:
 
@@ -435,6 +438,7 @@ These are the main targets for a larger model and more evidence per field (secti
 | Retrieval evaluation (questions + results) | `eval/questions.yaml`, `eval/results.md`, `eval/results.json` |
 | Sample Q&A log (cited answers) | `docs/qa_log.md` |
 | Agent trace of a full extraction run | `docs/example_trace.jsonl` |
+| Demo video | [Google Drive](https://drive.google.com/file/d/1Zlkola6VfkBY5ATsIDoeHQX5rjK6aYuT/view?usp=drive_link) |
 | Architecture diagram | [Section 2](#2-architecture) |
 | Tests | `tests/` (parsing, chunking, index, search, API, agents, reports) |
 
