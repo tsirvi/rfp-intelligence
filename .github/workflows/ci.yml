@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Lint and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install Tesseract (OCR)
+        run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+      - run: pip install -r requirements.txt
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+      - name: Tests
+        run: pytest -q
+
+  retrieval-eval:
+    name: Retrieval evaluation
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y tesseract-ocr
+      - run: pip install -r requirements.txt
+      - name: Cache embedding and reranker models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/fastembed
+          key: fastembed-${{ hashFiles('.env.example') }}
+      - name: Index the sample bids
+        run: python -m search index data/Bid1 data/Bid2
+      # The saved BidNet pages are not in the repository (they held a browser session), so expected passages
+      # from them are dropped; the run reports how many.
+      - name: Evaluate every retrieval configuration
+        run: python -m eval.run_eval --available-only --out eval-ci
+      - name: Show results
+        run: cat eval-ci/results.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-eval
+          path: eval-ci/
+
+  docker:
+    name: Docker image
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate the compose files
+        run: docker compose -f docker-compose.yml -f docker-compose.gpu.yml config --quiet
+      - name: Build the image
+        run: docker build -t rfp-intelligence:ci .
+      - name: Smoke test (imports and CLI)
+        run: docker run --rm rfp-intelligence:ci python main.py --help
