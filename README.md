@@ -1,6 +1,6 @@
 # RFP Intelligence Platform
 
-**▶️ [Demo video](https://youtu.be/juL6Q2Mq6JA)** (Google Drive): a walkthrough of ingestion, search, the agents, Q&A,
+**▶️ [Demo video](https://youtu.be/Xi5K5MH51M4)** (Google Drive): a walkthrough of ingestion, search, the agents, Q&A,
 comparison and go / no-go.
 
 A retrieval-augmented search engine and a multi-agent system for bid / RFP documents. Point it at a bid
